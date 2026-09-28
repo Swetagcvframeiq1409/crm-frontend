@@ -2,20 +2,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Phone, Mail, RefreshCw, Folder, CalendarDays, Clock, PhoneCall, AtSign, Users } from "lucide-react";
 import AppShell from "@/components/layout/AppShell";
+import Header from "@/components/layout/Header";
 import Badge from "@/components/ui/Badge";
 import { clients } from "@/data/mockData";
-
-// ── helpers ───────────────────────────────────────────────────────────────────
-
-function fmtValue(n) {
-  if (n >= 10000000) return `₹${(n / 10000000).toFixed(2)}Cr`;
-  if (n >= 100000)   return `₹${(n / 100000).toFixed(1)}L`;
-  return "₹" + n.toLocaleString("en-IN");
-}
-
-function fmtDate(iso) {
-  return new Date(iso).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
-}
+import { fmtValue } from "@/lib/format";
+import { fmtDate } from "@/lib/dates";
 
 const HEALTH_BADGE = { Healthy: "teal", "Needs Attention": "amber", "At Risk": "rose" };
 
@@ -43,29 +34,23 @@ function StatTile({ icon: Icon, label, value, mono = false }) {
 
 // ── Page (server component — no "use client" needed) ─────────────────────────
 
-export default function ClientDetailPage({ params }) {
-  const client = clients.find((c) => c.id === params.id);
+export default async function ClientDetailPage({ params }) {
+  const { id } = await params;
+  const client = clients.find((c) => c.id === id);
   if (!client) notFound();
 
   return (
     <AppShell>
-      {/* Back link */}
-      <Link
-        href="/clients"
-        className="inline-flex items-center gap-1.5 text-sm text-[#6B7280] hover:text-[#171A21] transition-colors mb-5"
-      >
-        <ArrowLeft size={14} strokeWidth={2} />
-        Back to Clients
-      </Link>
-
-      {/* Page header */}
-      <div className="flex items-start justify-between mb-6">
-        <div>
-          <h1 className="text-xl font-semibold text-[#171A21] leading-tight">{client.name}</h1>
-          <p className="text-sm text-[#6B7280] mt-0.5">{client.industry}</p>
-        </div>
-        <Badge variant={HEALTH_BADGE[client.health]}>{client.health}</Badge>
-      </div>
+      <Header
+        title={
+          <div className="flex items-center gap-2">
+            <span>{client.name}</span>
+            <Badge variant={HEALTH_BADGE[client.health]}>{client.health}</Badge>
+          </div>
+        }
+        subtitle={client.industry}
+        breadcrumbs={[{ label: "Clients", href: "/clients" }, { label: client.name }]}
+      />
 
       {/* Quick stats row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-7">
@@ -119,7 +104,7 @@ export default function ClientDetailPage({ params }) {
 
             <div className="relative">
               {/* Vertical line */}
-              <div className="absolute left-[15px] top-2 bottom-2 w-px bg-[#E3E5EA]" />
+              <div className="absolute left-3.75 top-2 bottom-2 w-px bg-[#E3E5EA]" />
 
               <ul className="flex flex-col gap-0">
                 {client.timeline.map(({ id, date, type, text }, i) => {

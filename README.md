@@ -1,36 +1,65 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+## CVFrameIQ CRM - Frontend
 
-## Getting Started
+Internal CRM web app for IT services and consulting teams. Stage 1 frontend.
 
-First, run the development server:
+## What's built (Stage 1)
+- Login: sign in with a demo user to access the app.
+- Dashboard: pipeline value, active leads, deals by stage,
+  recent activity and clients that need attention.
+- Leads: list of leads with search and a status filter.
+  Add a lead or open one to see its details.
+- Pipeline: move deals through stages with drag and drop.
+- Clients: view the client list and open a detail page with
+  contact info and activity history.
+- Proposals: list of proposals with a status filter.
+  Open one to see line items, totals and versions.
+- Settings: placeholder account page for profile and preferences.
+
+## Tech used
+- Next.js (App Router, JavaScript)
+- Tailwind CSS
+- framer-motion
+- recharts
+- dnd-kit
+- lucide-react
+
+## How to run it
+Requirements: Node.js 18.18 or newer.
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+Other commands:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+npm run lint
+```
 
-## Learn More
+## Demo logins
+These are sample accounts for testing only.
 
-To learn more about Next.js, take a look at the following resources:
+| Name | Email | Password | Role |
+| --- | --- | --- | --- |
+| Sweta Ghosh | swetag.@cvframeiq.com | Demo@123 | Developer |
+| Rahul Kumar | rahul.k@cvframeiq.com | Demo@123 | Sales Manager |
+| Priya Sharma | priya.s@cvframeiq.com | Demo@123 | Sales Executive |
+| Amit Patel | admin@cvframeiq.com | Demo@123 | Admin |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Project structure
+```text
+src/
+  app/        Route pages and app layout
+  components/ Reusable UI, dashboard widgets, and layout pieces
+  context/    Auth and toast state
+  data/       Mock data and demo users
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Notes
+- All data is sample data in src/data/mockData.js. There is no backend connected yet.
+- The login is a temporary demo login and will be replaced once the backend is ready.
+- Planned next: Stage 2 (projects, timesheets, billing, support tickets).

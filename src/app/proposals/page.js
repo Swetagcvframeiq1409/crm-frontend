@@ -1,12 +1,18 @@
 "use client";
-import { useState, useMemo } from "react";
-import { Plus, Trash2 } from "lucide-react";
+import { useState, useMemo, useEffect, useRef } from "react";
+import { Plus, Trash2, SearchX } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
 import AppShell from "@/components/layout/AppShell";
 import Header from "@/components/layout/Header";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import SlideOver from "@/components/ui/SlideOver";
+import EmptyState from "@/components/ui/EmptyState";
+import { TableSkeleton } from "@/components/ui/Skeleton";
+import { useToast } from "@/context/ToastContext";
 import { proposals, clients } from "@/data/mockData";
+import { fmtValue, fmtINR } from "@/lib/format";
+import { fmtDate } from "@/lib/dates";
 
 // ── constants ─────────────────────────────────────────────────────────────────
 
@@ -19,22 +25,6 @@ const STATUS_VARIANTS = {
 };
 
 const STATUSES = ["All", "Draft", "Sent", "Negotiation", "Accepted", "Rejected"];
-
-// ── helpers ───────────────────────────────────────────────────────────────────
-
-function fmtValue(n) {
-  if (n >= 10000000) return `₹${(n / 10000000).toFixed(2)}Cr`;
-  if (n >= 100000)   return `₹${(n / 100000).toFixed(1)}L`;
-  return "₹" + n.toLocaleString("en-IN");
-}
-
-function fmtINR(n) {
-  return "₹" + Number(n).toLocaleString("en-IN");
-}
-
-function fmtDate(iso) {
-  return new Date(iso).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
-}
 
 function isExpired(iso) {
   return new Date(iso) < new Date();
@@ -118,11 +108,11 @@ function ProposalDetail({ proposal: p }) {
       <div>
         <p className="text-xs font-medium text-[#6B7280] mb-3">Version History</p>
         <div className="relative">
-          <div className="absolute left-[11px] top-1.5 bottom-1.5 w-px bg-[#E3E5EA]" />
+          <div className="absolute left-2.75 top-1.5 bottom-1.5 w-px bg-[#E3E5EA]" />
           <ul className="flex flex-col gap-0">
             {p.versions.map((v, i) => (
               <li key={v.ver} className={`flex gap-3 ${i < p.versions.length - 1 ? "pb-4" : ""}`}>
-                <span className="w-[22px] h-[22px] rounded-full bg-white border-2 border-[#E3E5EA] flex items-center justify-center shrink-0 z-10">
+                <span className="w-5.5 h-5.5 rounded-full bg-white border-2 border-[#E3E5EA] flex items-center justify-center shrink-0 z-10">
                   <span className="text-[9px] font-semibold text-[#6B7280]">{v.ver}</span>
                 </span>
                 <div className="flex-1 pt-0.5">
@@ -146,7 +136,7 @@ const EMPTY_FORM = {
   lineItems: [{ ...EMPTY_LINE }],
 };
 
-function NewProposalForm() {
+function NewProposalForm({ onCreate }) {
   const [form, setForm] = useState(EMPTY_FORM);
 
   const setField = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
@@ -264,6 +254,7 @@ function NewProposalForm() {
           type="submit"
           disabled={!valid}
           className={`w-full justify-center ${!valid ? "opacity-40 cursor-not-allowed" : ""}`}
+          onClick={() => valid && onCreate?.(form)}
         >
           Save Proposal
         </Button>
@@ -278,15 +269,34 @@ export default function ProposalsPage() {
   const [statusFilter, setStatus] = useState("All");
   const [selected, setSelected]   = useState(null);
   const [addOpen, setAddOpen]     = useState(false);
+  const [loading, setLoading]     = useState(true);
+  const [firstLoad, setFirstLoad] = useState(true);
+  const reduced = useReducedMotion();
+  const toast = useToast();
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+      const finish = setTimeout(() => setFirstLoad(false), 80);
+      return () => clearTimeout(finish);
+    }, 600);
+    return () => clearTimeout(timer);
+  }, []);
 
   const filtered = useMemo(() =>
     statusFilter === "All" ? proposals : proposals.filter((p) => p.status === statusFilter),
     [statusFilter]
   );
 
-  const closeAll  = () => { setSelected(null); setAddOpen(false); };
-  const openAdd   = () => { setSelected(null); setAddOpen(true); };
+  const closeAll = () => { setSelected(null); setAddOpen(false); };
+  const openAdd = () => { setSelected(null); setAddOpen(true); };
   const openDetail = (p) => { setAddOpen(false); setSelected(p); };
+  const clearFilters = () => setStatus("All");
+
+  const handleCreate = (form) => {
+    closeAll();
+    toast({ message: `Proposal for ${form.client} created successfully.` });
+  };
 
   const COLS = ["Proposal / Client", "Service", "Value", "Status", "Valid Until", "Owner"];
 
@@ -301,7 +311,6 @@ export default function ProposalsPage() {
         }
       />
 
-      {/* Filter bar */}
       <div className="flex items-center gap-3 mb-4">
         <select
           value={statusFilter}
@@ -315,88 +324,85 @@ export default function ProposalsPage() {
         </span>
       </div>
 
-      {/* Table */}
-      <div className="bg-white border border-[#E3E5EA] rounded-lg overflow-hidden">
-        <table className="w-full text-sm border-collapse">
-          <thead>
-            <tr className="border-b border-[#E3E5EA] bg-[#F5F6F8]">
-              {COLS.map((h) => (
-                <th
-                  key={h}
-                  className={`px-4 py-3 text-xs font-medium text-[#6B7280] text-left whitespace-nowrap ${h === "Value" ? "text-right" : ""}`}
-                >
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.length === 0 ? (
-              <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-sm text-[#6B7280]">
-                  No proposals match this filter.
-                </td>
+      {loading ? (
+        <TableSkeleton rows={7} cols={6} />
+      ) : filtered.length === 0 ? (
+        <div className="bg-white border border-[#E3E5EA] rounded-lg">
+          <EmptyState
+            icon={SearchX}
+            title="No proposals match this filter"
+            description="Try a different status to see matching work."
+            action={{ label: "Clear filters", onClick: clearFilters }}
+          />
+        </div>
+      ) : (
+        <div className="bg-white border border-[#E3E5EA] rounded-lg overflow-hidden">
+          <table className="w-full text-sm border-collapse">
+            <thead>
+              <tr className="border-b border-[#E3E5EA] bg-[#F5F6F8]">
+                {COLS.map((h) => (
+                  <th
+                    key={h}
+                    className={`px-4 py-3 text-xs font-medium text-[#6B7280] text-left whitespace-nowrap ${h === "Value" ? "text-right" : ""}`}
+                  >
+                    {h}
+                  </th>
+                ))}
               </tr>
-            ) : filtered.map((p, i) => {
-              const expired = isExpired(p.validUntil);
-              return (
-                <tr
-                  key={p.id}
-                  onClick={() => openDetail(p)}
-                  className={`cursor-pointer transition-colors hover:bg-[#F5F6F8] ${
-                    i < filtered.length - 1 ? "border-b border-[#E3E5EA]" : ""
-                  } ${selected?.id === p.id ? "bg-[#F5F6F8]" : ""}`}
-                >
-                  {/* Proposal ID + client */}
-                  <td className="px-4 py-3">
-                    <p className="font-medium text-[#171A21]">{p.client}</p>
-                    <p className="font-mono-data text-xs text-[#6B7280] mt-0.5">{p.id} · {p.version}</p>
-                  </td>
-
-                  {/* Service */}
-                  <td className="px-4 py-3 max-w-[240px]">
-                    <p className="truncate text-[#6B7280]" title={p.service}>{p.service}</p>
-                  </td>
-
-                  {/* Value */}
-                  <td className="px-4 py-3 text-right font-mono-data text-[#171A21] whitespace-nowrap">
-                    {fmtValue(p.value)}
-                  </td>
-
-                  {/* Status */}
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    <Badge variant={STATUS_VARIANTS[p.status]}>{p.status}</Badge>
-                  </td>
-
-                  {/* Valid Until */}
-                  <td className={`px-4 py-3 whitespace-nowrap text-sm ${expired ? "text-[#B3413A]" : "text-[#6B7280]"}`}>
-                    {fmtDate(p.validUntil)}
-                  </td>
-
-                  {/* Owner */}
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    <span className="flex items-center gap-2">
-                      <span className="w-6 h-6 rounded-full bg-[#0E7C66]/12 flex items-center justify-center shrink-0">
-                        <span className="text-[10px] font-semibold text-[#0E7C66]">{p.owner.initials}</span>
+            </thead>
+            <tbody>
+              {filtered.map((p, i) => {
+                const expired = isExpired(p.validUntil);
+                const shouldAnimate = !reduced && firstLoad;
+                return (
+                  <motion.tr
+                    key={p.id}
+                    initial={shouldAnimate ? { opacity: 0 } : false}
+                    animate={{ opacity: 1 }}
+                    transition={shouldAnimate ? { duration: 0.2, delay: i * 0.03 } : { duration: 0 }}
+                    onClick={() => openDetail(p)}
+                    className={`cursor-pointer transition-colors hover:bg-[#F5F6F8] ${
+                      i < filtered.length - 1 ? "border-b border-[#E3E5EA]" : ""
+                    } ${selected?.id === p.id ? "bg-[#F5F6F8]" : ""}`}
+                  >
+                    <td className="px-4 py-3">
+                      <p className="font-medium text-[#171A21]">{p.client}</p>
+                      <p className="font-mono-data text-xs text-[#6B7280] mt-0.5">{p.id} · {p.version}</p>
+                    </td>
+                    <td className="px-4 py-3 max-w-60">
+                      <p className="truncate text-[#6B7280]" title={p.service}>{p.service}</p>
+                    </td>
+                    <td className="px-4 py-3 text-right font-mono-data text-[#171A21] whitespace-nowrap">
+                      {fmtValue(p.value)}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <Badge variant={STATUS_VARIANTS[p.status]}>{p.status}</Badge>
+                    </td>
+                    <td className={`px-4 py-3 whitespace-nowrap text-sm ${expired ? "text-[#B3413A]" : "text-[#6B7280]"}`}>
+                      {fmtDate(p.validUntil)}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <span className="flex items-center gap-2">
+                        <span className="w-6 h-6 rounded-full bg-[#0E7C66]/12 flex items-center justify-center shrink-0">
+                          <span className="text-[10px] font-semibold text-[#0E7C66]">{p.owner.initials}</span>
+                        </span>
+                        <span className="text-sm text-[#171A21]">{p.owner.name}</span>
                       </span>
-                      <span className="text-sm text-[#171A21]">{p.owner.name}</span>
-                    </span>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+                    </td>
+                  </motion.tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
 
-      {/* Detail slide-over */}
       <SlideOver open={!!selected} onClose={closeAll} title={selected ? `${selected.id} · ${selected.version}` : ""}>
         <ProposalDetail proposal={selected} />
       </SlideOver>
 
-      {/* New proposal slide-over */}
       <SlideOver open={addOpen} onClose={closeAll} title="New Proposal">
-        <NewProposalForm />
+        <NewProposalForm onCreate={handleCreate} />
       </SlideOver>
     </AppShell>
   );

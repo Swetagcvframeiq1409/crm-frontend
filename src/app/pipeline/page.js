@@ -15,7 +15,10 @@ import AppShell from "@/components/layout/AppShell";
 import Header from "@/components/layout/Header";
 import Badge from "@/components/ui/Badge";
 import SlideOver from "@/components/ui/SlideOver";
+import { useToast } from "@/context/ToastContext";
 import { deals as initialDeals } from "@/data/mockData";
+import { fmtValue } from "@/lib/format";
+import { fmtDate, urgency } from "@/lib/dates";
 
 // ── constants ─────────────────────────────────────────────────────────────────
 
@@ -28,26 +31,6 @@ const STAGE_META = {
   Won:         { tint: "bg-[#171A21]/6",   text: "text-[#171A21]",  badge: "muted"    },
 };
 
-// ── helpers ───────────────────────────────────────────────────────────────────
-
-function fmtValue(n) {
-  if (n >= 10000000) return `₹${(n / 10000000).toFixed(2)}Cr`;
-  if (n >= 100000)   return `₹${(n / 100000).toFixed(1)}L`;
-  return "₹" + n.toLocaleString("en-IN");
-}
-
-function fmtDate(iso) {
-  return new Date(iso).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
-}
-
-/** Returns 'rose' | 'amber' | null based on days until close */
-function urgency(iso) {
-  const days = Math.ceil((new Date(iso) - Date.now()) / 86400000);
-  if (days <= 3)  return "rose";
-  if (days <= 7)  return "amber";
-  return null;
-}
-
 const URGENCY_BORDER = {
   rose:  "border-l-[3px] border-l-[#B3413A]",
   amber: "border-l-[3px] border-l-[#B7791F]",
@@ -58,12 +41,12 @@ const URGENCY_BORDER = {
 
 function DealCard({ deal, onClick, isDragOverlay = false }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: deal.id });
-  const u = urgency(deal.closeDate);
+  const isWon = deal.stage === "Won";
+  const u = isWon ? null : urgency(deal.closeDate);
 
   const style = {
     transform: CSS.Translate.toString(transform),
     opacity: isDragging && !isDragOverlay ? 0 : 1,
-    // lift effect on the overlay
     boxShadow: isDragOverlay ? "0 8px 24px rgba(0,0,0,0.13)" : undefined,
     cursor: isDragOverlay ? "grabbing" : "grab",
     zIndex: isDragOverlay ? 999 : undefined,
@@ -76,11 +59,10 @@ function DealCard({ deal, onClick, isDragOverlay = false }) {
       {...listeners}
       {...attributes}
       onClick={(e) => {
-        // only fire click if not a drag (pointer didn't move much)
         if (!isDragging) onClick(deal);
       }}
       className={`bg-white border border-[#E3E5EA] rounded-lg px-3.5 py-3 flex flex-col gap-2 select-none
-        ${URGENCY_BORDER[u] ?? URGENCY_BORDER["null"]}
+        ${isWon ? "" : (URGENCY_BORDER[u] ?? URGENCY_BORDER["null"])}
         ${isDragOverlay ? "rotate-[1.5deg]" : ""}
       `}
     >
@@ -93,11 +75,17 @@ function DealCard({ deal, onClick, isDragOverlay = false }) {
 
       <div className="flex items-center gap-1.5 text-xs text-[#6B7280]">
         <Calendar size={11} strokeWidth={1.8} />
-        <span>{fmtDate(deal.closeDate)}</span>
-        {u && (
-          <span className={`ml-1 font-medium ${u === "rose" ? "text-[#B3413A]" : "text-[#B7791F]"}`}>
-            {u === "rose" ? "· Closing soon" : "· This week"}
-          </span>
+        {isWon ? (
+          <span className="text-[#6B7280]">Closed {fmtDate(deal.closeDate)}</span>
+        ) : (
+          <>
+            <span>{fmtDate(deal.closeDate)}</span>
+            {u && (
+              <span className={`ml-1 font-medium ${u === "rose" ? "text-[#B3413A]" : "text-[#B7791F]"}`}>
+                {u === "rose" ? "· Closing soon" : "· This week"}
+              </span>
+            )}
+          </>
         )}
       </div>
 
@@ -134,7 +122,7 @@ function Column({ stage, deals, onCardClick }) {
       {/* Drop zone */}
       <div
         ref={setNodeRef}
-        className={`flex flex-col gap-2.5 flex-1 min-h-[120px] rounded-lg p-1 transition-colors
+        className={`flex flex-col gap-2.5 flex-1 min-h-30 rounded-lg p-1 transition-colors
           ${isOver ? "bg-[#0E7C66]/5 ring-1 ring-[#0E7C66]/20" : ""}
         `}
       >
@@ -255,6 +243,7 @@ export default function PipelinePage() {
   const [view, setView]             = useState("board");   // "board" | "list"
   const [activeDeal, setActiveDeal] = useState(null);      // currently dragging
   const [selectedDeal, setSelected] = useState(null);      // slide-over
+  const toast = useToast();
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } })
@@ -276,9 +265,15 @@ export default function PipelinePage() {
     if (!over || active.id === over.id) return;
     const targetStage = STAGES.includes(over.id) ? over.id : null;
     if (!targetStage) return;
+
+    const movedDeal = deals.find((d) => d.id === active.id);
+    if (!movedDeal || movedDeal.stage === targetStage) return;
+
     setDeals((prev) =>
       prev.map((d) => d.id === active.id ? { ...d, stage: targetStage } : d)
     );
+
+    toast({ message: `Moved to ${targetStage}`, variant: "success" });
   }
 
   const ViewToggle = (

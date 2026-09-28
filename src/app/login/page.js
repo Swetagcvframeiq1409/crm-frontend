@@ -26,10 +26,14 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
 
-    // Mock auth — any non-empty credentials succeed after a brief delay
     setTimeout(() => {
-      login();
-      router.push("/");
+      const result = login(email, password);
+      if (result.success) {
+        router.push("/");
+      } else {
+        setError(result.error);
+        setLoading(false);
+      }
     }, 600);
   }
 
@@ -113,7 +117,7 @@ export default function LoginPage() {
 
         {/* Footer note */}
         <p className="text-center text-xs text-[#6B7280]">
-          Contact your admin if you don't have access.
+          Contact your admin if you don&apos;t have access.
         </p>
       </motion.div>
     </div>
