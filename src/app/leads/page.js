@@ -15,7 +15,7 @@ const STATUS_VARIANTS = {
 };
 const STATUSES   = ["All", "New", "Contacted", "Qualified", "Converted", "Lost"];
 const INDUSTRIES = ["BFSI", "Retail", "Logistics", "Healthcare", "Infrastructure", "Pharma", "Manufacturing", "Education", "Other"];
-const OWNERS     = ["Rahul K.", "Priya S.", "Karan M."];
+const OWNERS     = ["Sweta G.", "Priya S.", "Karan M."];
 
 function fmtBudget(n) {
   return "₹" + n.toLocaleString("en-IN");
