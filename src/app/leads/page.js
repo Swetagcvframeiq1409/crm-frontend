@@ -237,7 +237,7 @@ export default function LeadsPage() {
                   <td className="px-4 py-3 max-w-[220px]">
                     <p className="truncate text-[#171A21]" title={lead.requirement}>{lead.requirement}</p>
                   </td>
-                  <td className="px-4 py-3 text-right font-mono-data text-[#171A21] whitespace-nowrap">{fmtBudget(lead.budget)}</td>
+                  <td className="px-4 py-3 text-right font-mono-data text-[#171A21] whitespace-nowrap">{fmtValue(lead.budget)}</td>
                   <td className="px-4 py-3 whitespace-nowrap"><Badge variant={STATUS_VARIANTS[lead.status]}>{lead.status}</Badge></td>
                   <td className="px-4 py-3 whitespace-nowrap"><OwnerCell owner={lead.owner} /></td>
                   <td className="px-4 py-3 text-[#6B7280] whitespace-nowrap">{lead.lastActivity}</td>

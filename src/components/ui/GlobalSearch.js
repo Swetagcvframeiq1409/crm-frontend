@@ -1,131 +1,144 @@
 "use client";
-import { useState, useEffect, useRef, useMemo } from "react";
+
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search, X } from "lucide-react";
-import { AnimatePresence, motion } from "framer-motion";
 import { leads, clients, proposals } from "@/data/mockData";
 
-function buildIndex() {
-  return [
-    ...leads.map((l)     => ({ label: l.company,  sub: `Lead · ${l.contact}`,          href: "/leads"                })),
-    ...clients.map((c)   => ({ label: c.name,      sub: `Client · ${c.industry}`,        href: `/clients/${c.id}`      })),
-    ...proposals.map((p) => ({ label: p.client,    sub: `Proposal · ${p.id} ${p.version}`, href: "/proposals"          })),
-  ];
-}
-
-const ALL = buildIndex();
+const RESULTS = [
+  ...leads.map((lead) => ({
+    label: lead.company,
+    sub: lead.contact,
+    type: "Lead",
+    href: "/leads",
+  })),
+  ...clients.map((client) => ({
+    label: client.name,
+    sub: client.industry,
+    type: "Client",
+    href: `/clients/${client.id}`,
+  })),
+  ...proposals.map((proposal) => ({
+    label: proposal.client,
+    sub: `${proposal.id} · ${proposal.version}`,
+    type: "Proposal",
+    href: "/proposals",
+  })),
+];
 
 export default function GlobalSearch() {
-  const [open, setOpen]   = useState(false);
   const [query, setQuery] = useState("");
-  const inputRef          = useRef(null);
-  const router            = useRouter();
+  const [focused, setFocused] = useState(false);
+  const containerRef = useRef(null);
+  const inputRef = useRef(null);
+  const router = useRouter();
 
-  // Cmd+K / Ctrl+K
   useEffect(() => {
-    function handler(e) {
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-        e.preventDefault();
-        setOpen((v) => !v);
-      }
-      if (e.key === "Escape") closeSearch();
+    function handleOutsideClick(event) {
+      if (!containerRef.current?.contains(event.target)) setFocused(false);
     }
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
+
+    function handleShortcut(event) {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        inputRef.current?.focus();
+      }
+    }
+
+    document.addEventListener("mousedown", handleOutsideClick);
+    window.addEventListener("keydown", handleShortcut);
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+      window.removeEventListener("keydown", handleShortcut);
+    };
   }, []);
 
-  useEffect(() => {
-    if (open) setTimeout(() => inputRef.current?.focus(), 50);
-  }, [open]);
-
   const results = useMemo(() => {
-    if (!query.trim()) return [];
-    const q = query.toLowerCase();
-    return ALL.filter((r) => r.label.toLowerCase().includes(q) || r.sub.toLowerCase().includes(q)).slice(0, 8);
+    const search = query.trim().toLowerCase();
+    if (!search) return [];
+    return RESULTS.filter((result) =>
+      [result.label, result.sub, result.type].some((value) => value.toLowerCase().includes(search))
+    ).slice(0, 8);
   }, [query]);
 
-  function closeSearch() {
-    setOpen(false);
+  function selectResult(result) {
     setQuery("");
+    setFocused(false);
+    inputRef.current?.blur();
+    router.push(result.href);
   }
 
-  function select(href) {
-    closeSearch();
-    router.push(href);
+  function handleKeyDown(event) {
+    if (event.key === "Escape") {
+      setFocused(false);
+      inputRef.current?.blur();
+    }
+    if (event.key === "Enter" && results.length > 0) {
+      event.preventDefault();
+      selectResult(results[0]);
+    }
   }
 
   return (
-    <>
-      {/* Trigger button shown in header */}
-      <button
-        onClick={() => setOpen(true)}
-        className="hidden md:flex items-center gap-2 px-3 py-1.5 border border-[#E3E5EA] rounded bg-white text-sm text-[#6B7280] hover:border-[#0E7C66]/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0E7C66]"
-      >
-        <Search size={13} strokeWidth={1.8} />
-        <span>Search…</span>
-      </button>
+    <div ref={containerRef} className="relative w-64 lg:w-80 shrink-0">
+      <Search
+        size={15}
+        strokeWidth={1.8}
+        className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7280] pointer-events-none"
+      />
+      <input
+        ref={inputRef}
+        type="search"
+        value={query}
+        onChange={(event) => setQuery(event.target.value)}
+        onFocus={() => setFocused(true)}
+        onKeyDown={handleKeyDown}
+        placeholder="Search across the CRM..."
+        aria-label="Search across the CRM"
+        className="w-full pl-9 pr-9 py-2 text-sm border border-[#E3E5EA] rounded bg-white text-[#171A21] placeholder:text-[#6B7280] focus:outline-none focus:border-[#0E7C66]"
+      />
+      {query && (
+        <button
+          type="button"
+          onClick={() => {
+            setQuery("");
+            inputRef.current?.focus();
+          }}
+          className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-[#6B7280] hover:text-[#171A21] rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0E7C66]"
+          aria-label="Clear search"
+        >
+          <X size={14} strokeWidth={1.8} />
+        </button>
+      )}
 
-      <AnimatePresence>
-        {open && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
-              className="fixed inset-0 bg-black/30 z-[60]"
-              onClick={closeSearch}
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.97, y: -8 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.97, y: -8 }}
-              transition={{ duration: 0.15, ease: "easeOut" }}
-              className="fixed top-[15vh] left-1/2 -translate-x-1/2 w-full max-w-[520px] bg-white border border-[#E3E5EA] rounded-xl shadow-[0_8px_40px_rgba(0,0,0,0.14)] z-[70] overflow-hidden"
-            >
-              {/* Input */}
-              <div className="flex items-center gap-3 px-4 py-3 border-b border-[#E3E5EA]">
-                <Search size={15} className="text-[#6B7280] shrink-0" strokeWidth={1.8} />
-                <input
-                  ref={inputRef}
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search leads, clients, proposals…"
-                  className="flex-1 text-sm text-[#171A21] placeholder:text-[#6B7280] bg-transparent focus:outline-none"
-                />
-                {query && (
-                  <button onClick={closeSearch} className="text-[#6B7280] hover:text-[#171A21] transition-colors">
-                    <X size={14} />
+      {focused && query.trim() && (
+        <div className="absolute top-full left-0 right-0 mt-1 z-50 bg-white border border-[#E3E5EA] rounded-lg shadow-[0_4px_16px_rgba(0,0,0,0.08)] overflow-hidden">
+          {results.length === 0 ? (
+            <p className="px-4 py-3 text-sm text-[#6B7280]">No results found</p>
+          ) : (
+            <ul className="max-h-80 overflow-y-auto py-1">
+              {results.map((result, index) => (
+                <li key={`${result.type}-${result.href}-${result.label}-${index}`}>
+                  <button
+                    type="button"
+                    onMouseDown={(event) => event.preventDefault()}
+                    onClick={() => selectResult(result)}
+                    className="w-full flex items-center justify-between gap-3 px-3 py-2 text-left hover:bg-[#F5F6F8] focus-visible:outline-none focus-visible:bg-[#F5F6F8]"
+                  >
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-medium text-[#171A21]">{result.label}</span>
+                      <span className="block truncate text-xs text-[#6B7280] mt-0.5">{result.sub}</span>
+                    </span>
+                    <span className="shrink-0 px-1.5 py-0.5 rounded bg-[#F5F6F8] text-[10px] font-medium text-[#6B7280]">
+                      {result.type}
+                    </span>
                   </button>
-                )}
-              </div>
-
-              {/* Results */}
-              {query && (
-                <ul className="max-h-72 overflow-y-auto py-1">
-                  {results.length === 0 ? (
-                    <li className="px-4 py-6 text-center text-sm text-[#6B7280]">No results for &quot;{query}&quot;</li>
-                  ) : results.map((r, i) => (
-                    <li key={i}>
-                      <button
-                        onClick={() => select(r.href)}
-                        className="w-full flex flex-col items-start px-4 py-2.5 hover:bg-[#F5F6F8] transition-colors text-left focus-visible:outline-none focus-visible:bg-[#F5F6F8]"
-                      >
-                        <span className="text-sm font-medium text-[#171A21]">{r.label}</span>
-                        <span className="text-xs text-[#6B7280]">{r.sub}</span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-
-              {!query && (
-                <p className="px-4 py-5 text-xs text-[#6B7280] text-center">
-                  Start typing to search across leads, clients and proposals.
-                </p>
-              )}
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-    </>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+    </div>
   );
 }

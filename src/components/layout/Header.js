@@ -51,10 +51,10 @@ export default function Header({ title, subtitle, action, breadcrumbs }) {
         {subtitle && <p className="text-sm text-[#6B7280] mt-0.5">{subtitle}</p>}
       </div>
 
-      {/* Right: search + action + bell + user */}
+      {/* Right: action + search + bell + user */}
       <div className="flex items-center gap-3">
-        <GlobalSearch />
         {action}
+        <GlobalSearch />
 
         <button className="relative p-2 rounded hover:bg-[#E3E5EA] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0E7C66]">
           <Bell size={18} className="text-[#6B7280]" />

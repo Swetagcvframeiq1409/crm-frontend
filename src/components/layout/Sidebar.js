@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   LayoutDashboard, Users, GitMerge, Briefcase,
-  FileText, Settings, PanelLeftClose, PanelLeftOpen,
+  FileText, FolderKanban, Clock, ReceiptText, Headphones, Settings, PanelLeftClose, PanelLeftOpen,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
@@ -18,6 +18,10 @@ const GROUPS = [
       { label: "Pipeline",  href: "/pipeline",   icon: GitMerge        },
       { label: "Clients",   href: "/clients",    icon: Briefcase       },
       { label: "Proposals", href: "/proposals",  icon: FileText        },
+      { label: "Projects",    href: "/projects",    icon: FolderKanban    },
+      { label: "Timesheets",  href: "/timesheets",  icon: Clock           },
+      { label: "Billing",     href: "/billing",     icon: ReceiptText, roles: ["admin", "Sales Manager"] },
+      { label: "Tickets",     href: "/tickets",     icon: Headphones  },
     ],
   },
   {
@@ -76,7 +80,9 @@ export default function Sidebar({ collapsed, onToggle }) {
               </p>
             )}
             <div className="flex flex-col gap-0.5">
-              {group.items.map(({ label, href, icon: Icon }) => {
+              {group.items
+                .filter(({ roles }) => !roles || roles.includes(user?.role))
+                .map(({ label, href, icon: Icon }) => {
                 const active = href === "/" ? pathname === href : pathname.startsWith(href);
                 return (
                   <Link

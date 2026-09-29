@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Phone, Mail, RefreshCw, Folder, CalendarDays, Clock, PhoneCall, AtSign, Users } from "lucide-react";
+import { ArrowLeft, Phone, Mail, RefreshCw, Folder, CalendarDays, Clock, PhoneCall, AtSign, Users, Headphones } from "lucide-react";
 import AppShell from "@/components/layout/AppShell";
 import Header from "@/components/layout/Header";
 import Badge from "@/components/ui/Badge";
-import { clients } from "@/data/mockData";
+import { clients, tickets } from "@/data/mockData";
 import { fmtValue } from "@/lib/format";
 import { fmtDate } from "@/lib/dates";
 
@@ -39,6 +39,10 @@ export default async function ClientDetailPage({ params }) {
   const client = clients.find((c) => c.id === id);
   if (!client) notFound();
 
+  const openTickets = tickets.filter(
+    (t) => t.client === client.name && (t.status === "Open" || t.status === "In Progress")
+  ).length;
+
   return (
     <AppShell>
       <Header
@@ -53,11 +57,14 @@ export default async function ClientDetailPage({ params }) {
       />
 
       {/* Quick stats row */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-7">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-7">
         <StatTile icon={Folder}      label="Active Projects"  value={`${client.activeProjects} project${client.activeProjects !== 1 ? "s" : ""}`} />
         <StatTile icon={RefreshCw}   label="Contract Value"   value={fmtValue(client.contractValue)} mono />
         <StatTile icon={CalendarDays} label="Renewal Date"    value={fmtDate(client.renewalDate)} />
         <StatTile icon={Clock}       label="Client Since"     value={fmtDate(client.clientSince)} />
+        <Link href={`/tickets?client=${encodeURIComponent(client.name)}`} className="block">
+          <StatTile icon={Headphones} label="Open Tickets" value={`${openTickets} ticket${openTickets !== 1 ? "s" : ""}`} />
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
