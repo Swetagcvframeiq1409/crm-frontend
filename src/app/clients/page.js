@@ -9,6 +9,7 @@ import { CardSkeleton } from "@/components/ui/Skeleton";
 import { clients } from "@/data/mockData";
 import { fmtValue } from "@/lib/format";
 import { fmtDate, daysUntil } from "@/lib/dates";
+import { getClientHealth } from "@/lib/clientHealth";
 
 const HEALTH_DOT  = { Healthy: "bg-[#0E7C66]", "Needs Attention": "bg-[#B7791F]", "At Risk": "bg-[#B3413A]" };
 const HEALTH_TEXT = { Healthy: "text-[#0E7C66]", "Needs Attention": "text-[#B7791F]", "At Risk": "text-[#B3413A]" };
@@ -16,6 +17,8 @@ const HEALTH_TEXT = { Healthy: "text-[#0E7C66]", "Needs Attention": "text-[#B779
 function ClientCard({ client }) {
   const renewal = daysUntil(client.renewalDate);
   const renewalWarning = renewal <= 60;
+  const health = getClientHealth(client);
+  const healthReasons = health.factors.slice(0, 2).join(" · ") || "No current health factors";
   return (
     <Link
       href={`/clients/${client.id}`}
@@ -26,9 +29,17 @@ function ClientCard({ client }) {
           <h3 className="text-base font-semibold text-[#171A21] leading-snug group-hover:text-[#0E7C66] transition-colors truncate">{client.name}</h3>
           <p className="text-xs text-[#6B7280] mt-0.5">{client.industry}</p>
         </div>
-        <span className={`flex items-center gap-1.5 shrink-0 text-xs font-medium ${HEALTH_TEXT[client.health]}`}>
-          <span className={`w-2 h-2 rounded-full shrink-0 ${HEALTH_DOT[client.health]}`} />
-          {client.health}
+        <span className="relative group/health shrink-0" title={healthReasons}>
+          <span className={`flex items-center gap-1.5 text-xs font-medium ${HEALTH_TEXT[health.status]}`}>
+            <span className={`w-2 h-2 rounded-full shrink-0 ${HEALTH_DOT[health.status]}`} />
+            {health.status}
+          </span>
+          <span
+            role="tooltip"
+            className="pointer-events-none absolute right-0 top-full z-20 mt-2 hidden w-56 rounded-lg border border-[#E3E5EA] bg-white px-3 py-2 text-left text-xs font-normal leading-relaxed text-[#6B7280] shadow-sm group-hover/health:block"
+          >
+            {healthReasons}
+          </span>
         </span>
       </div>
       <hr className="border-[#F5F6F8]" />

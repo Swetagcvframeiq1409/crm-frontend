@@ -1,16 +1,20 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import AppShell from "@/components/layout/AppShell";
 import Header from "@/components/layout/Header";
+import Badge from "@/components/ui/Badge";
 import StatCard from "@/components/ui/StatCard";
 import PipelineChart from "@/components/dashboard/PipelineChart";
 import ActivityFeed from "@/components/dashboard/ActivityFeed";
 import AttentionList from "@/components/dashboard/AttentionList";
-import { recentActivity, attentionClients, deals, leads } from "@/data/mockData";
+import { recentActivity, deals, leads, clients, contracts } from "@/data/mockData";
 import { useAuth } from "@/context/AuthContext";
 import { fmtValue } from "@/lib/format";
+import { daysUntil, fmtDate } from "@/lib/dates";
+import { getClientHealth } from "@/lib/clientHealth";
 
 const STAGE_ORDER = ["Discovery", "Proposal", "Negotiation", "Won"];
 
@@ -117,6 +121,28 @@ export default function DashboardPage() {
   const { user } = useAuth();
   const today = new Date();
   const greeting = today.getHours() < 12 ? "Good morning" : today.getHours() < 18 ? "Good afternoon" : "Good evening";
+  const upcomingRenewals = contracts
+    .map((contract) => ({
+      contract,
+      client: clients.find((item) => item.id === contract.clientId),
+      daysRemaining: daysUntil(contract.renewalDate),
+    }))
+    .filter(({ contract, client, daysRemaining }) =>
+      client && contract.status !== "Expired" && daysRemaining >= 0 && daysRemaining <= 60
+    )
+    .sort((a, b) => a.daysRemaining - b.daysRemaining);
+  const attentionClients = clients
+    .map((client) => {
+      const health = getClientHealth(client, today);
+      return {
+        id: client.id,
+        name: client.name,
+        status: health.status,
+        statusColor: health.status === "At Risk" ? "rose" : "amber",
+        note: health.factors.slice(0, 2).join(" · "),
+      };
+    })
+    .filter((client) => client.status !== "Healthy");
   const summary = RANGE_DATA[range];
   const stageSummary = useMemo(() => buildStageSummary(deals), []);
 
@@ -159,6 +185,33 @@ export default function DashboardPage() {
           <StatCard key={card.id} {...card} animationDelay={i * 0.05} />
         ))}
       </div>
+
+      <section className="bg-white border border-[#E3E5EA] rounded-lg px-5 py-4 mb-6">
+        <div className="flex items-center justify-between gap-3 mb-3">
+          <h2 className="text-sm font-semibold text-[#171A21]">Renewals due soon</h2>
+          <span className="text-xs text-[#6B7280]">Next 60 days</span>
+        </div>
+        {upcomingRenewals.length === 0 ? (
+          <p className="text-sm text-[#6B7280]">No contracts are due for renewal in the next 60 days.</p>
+        ) : (
+          <ul className="divide-y divide-[#F5F6F8]">
+            {upcomingRenewals.map(({ contract, client, daysRemaining }) => (
+              <li key={contract.id}>
+                <Link
+                  href={`/clients/${client.id}`}
+                  className="flex flex-wrap items-center justify-between gap-2 py-2.5 first:pt-0 last:pb-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0E7C66] rounded"
+                >
+                  <span className="min-w-0">
+                    <span className="block text-sm font-medium text-[#171A21]">{client.name}</span>
+                    <span className="block text-xs text-[#6B7280] mt-0.5">Renews {fmtDate(contract.renewalDate)}</span>
+                  </span>
+                  <Badge variant="amber">{daysRemaining} days</Badge>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
         <div className="xl:col-span-2 flex flex-col gap-4">

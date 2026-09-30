@@ -131,6 +131,7 @@ export const clients = [
     activeProjects: 3,
     contractValue: 12400000,
     renewalDate: "2027-03-15",
+    lastContactDate: "2026-09-18",
     clientSince: "2024-08-01",
     contact: {
       name: "Dr. Suresh Iyer",
@@ -153,6 +154,7 @@ export const clients = [
     activeProjects: 2,
     contractValue: 5300000,
     renewalDate: "2027-01-31",
+    lastContactDate: "2026-09-22",
     clientSince: "2025-02-14",
     contact: {
       name: "Harish Nambiar",
@@ -174,6 +176,7 @@ export const clients = [
     activeProjects: 1,
     contractValue: 6700000,
     renewalDate: "2026-11-20",
+    lastContactDate: "2026-09-15",
     clientSince: "2024-11-05",
     contact: {
       name: "Vikram Bose",
@@ -195,6 +198,7 @@ export const clients = [
     activeProjects: 2,
     contractValue: 2900000,
     renewalDate: "2027-02-01",
+    lastContactDate: "2026-09-19",
     clientSince: "2025-04-22",
     contact: {
       name: "Meera Pillai",
@@ -216,7 +220,8 @@ export const clients = [
     health: "Needs Attention",
     activeProjects: 1,
     contractValue: 4100000,
-    renewalDate: "2027-04-10",
+    renewalDate: "2026-11-18",
+    lastContactDate: "2026-09-21",
     clientSince: "2025-01-08",
     contact: {
       name: "Rohit Desai",
@@ -238,6 +243,7 @@ export const clients = [
     activeProjects: 2,
     contractValue: 1800000,
     renewalDate: "2027-06-30",
+    lastContactDate: "2026-09-23",
     clientSince: "2025-06-17",
     contact: {
       name: "Preethi Nair",
@@ -250,6 +256,69 @@ export const clients = [
       { id: 2, date: "9 Sep 2026", type: "Call",    text: "Talked through the depot 3 rollout timing." },
       { id: 3, date: "27 Aug 2026", type: "Email",   text: "Shared the test steps for their team to try." },
     ],
+  },
+];
+
+export const contracts = [
+  {
+    id: "CON-001",
+    clientId: "C001",
+    value: 12400000,
+    startDate: "2024-08-01",
+    endDate: "2027-03-15",
+    renewalDate: "2027-03-15",
+    status: "Active",
+    note: "Patient records and data services renewal.",
+  },
+  {
+    id: "CON-002",
+    clientId: "C002",
+    value: 5300000,
+    startDate: "2025-02-14",
+    endDate: "2027-01-31",
+    renewalDate: "2027-01-31",
+    status: "Active",
+    note: "Network support renewal planned for January.",
+  },
+  {
+    id: "CON-003",
+    clientId: "C003",
+    value: 6700000,
+    startDate: "2024-11-05",
+    endDate: "2026-11-20",
+    renewalDate: "2026-11-20",
+    status: "Expiring",
+    note: "Renewal discussion is due before the site rollout ends.",
+  },
+  {
+    id: "CON-004",
+    clientId: "C004",
+    value: 2900000,
+    startDate: "2025-04-22",
+    endDate: "2027-02-01",
+    renewalDate: "2027-02-01",
+    status: "Active",
+    note: "Reporting support contract is active.",
+  },
+  {
+    id: "CON-005",
+    clientId: "C005",
+    value: 4100000,
+    startDate: "2025-01-08",
+    endDate: "2026-11-18",
+    renewalDate: "2026-11-18",
+    status: "Expiring",
+    note: "Check renewal scope with the client before November.",
+  },
+  {
+    id: "CON-006",
+    clientId: "C006",
+    value: 1800000,
+    startDate: "2025-06-17",
+    endDate: "2027-06-30",
+    renewalDate: "2027-06-30",
+    status: "Active",
+    note: "Delivery tracking support contract is active.",
   },
 ];
 

@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   LayoutDashboard, Users, GitMerge, Briefcase,
-  FileText, FolderKanban, Clock, ReceiptText, Headphones, Settings, PanelLeftClose, PanelLeftOpen,
+  FileText, FolderKanban, Clock, ReceiptText, Headphones, BarChart3, Settings, PanelLeftClose, PanelLeftOpen,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
@@ -22,6 +22,7 @@ const GROUPS = [
       { label: "Timesheets",  href: "/timesheets",  icon: Clock           },
       { label: "Billing",     href: "/billing",     icon: ReceiptText, roles: ["admin", "Sales Manager"] },
       { label: "Tickets",     href: "/tickets",     icon: Headphones  },
+      { label: "Reports",     href: "/reports",     icon: BarChart3, roles: ["admin", "Sales Manager"] },
     ],
   },
   {
