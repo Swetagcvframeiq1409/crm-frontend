@@ -32,7 +32,6 @@ export default function Header({ title, subtitle, action, breadcrumbs }) {
 
   return (
     <header className="flex items-center justify-between mb-6">
-      {/* Left: title + breadcrumbs */}
       <div>
         {breadcrumbs?.length > 1 && (
           <nav className="flex items-center gap-1 mb-1">
@@ -51,7 +50,6 @@ export default function Header({ title, subtitle, action, breadcrumbs }) {
         {subtitle && <p className="text-sm text-[#6B7280] mt-0.5">{subtitle}</p>}
       </div>
 
-      {/* Right: action + search + bell + user */}
       <div className="flex items-center gap-3">
         {action}
         <GlobalSearch />
@@ -61,7 +59,6 @@ export default function Header({ title, subtitle, action, breadcrumbs }) {
           <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-[#B3413A]" />
         </button>
 
-        {/* User dropdown */}
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setOpen((v) => !v)}

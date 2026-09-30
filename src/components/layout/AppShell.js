@@ -17,7 +17,7 @@ export default function AppShell({ children }) {
     }
   }, [ready, loggedIn, router]);
 
-  // Don't render or redirect until session has been restored from storage
+  // Wait for storage restoration before deciding whether to redirect.
   if (!ready || !loggedIn) return null;
 
   return (

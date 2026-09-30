@@ -49,7 +49,6 @@ export default function LoginPage() {
         transition={{ duration: 0.4, ease: "easeOut" }}
         className="w-full max-w-[400px] bg-white border border-[#E3E5EA] rounded-xl px-8 py-9 flex flex-col gap-6"
       >
-        {/* Wordmark */}
         <div className="flex flex-col items-center gap-1">
           <span className="text-[#171A21] font-semibold text-xl tracking-tight">
             CVFrame<span className="text-[#0E7C66]">IQ</span>
@@ -57,9 +56,7 @@ export default function LoginPage() {
           <p className="text-sm text-[#6B7280]">Sign in to continue</p>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-3.5">
-          {/* Email */}
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-medium text-[#6B7280]">Work email</label>
             <input
@@ -72,7 +69,6 @@ export default function LoginPage() {
             />
           </div>
 
-          {/* Password */}
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-medium text-[#6B7280]">Password</label>
             <div className="relative">
@@ -96,12 +92,10 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Inline error */}
           {error && (
             <p className="text-xs text-[#B3413A]">{error}</p>
           )}
 
-          {/* Submit */}
           <button
             type="submit"
             disabled={loading}
@@ -115,7 +109,6 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {/* Footer note */}
         <p className="text-center text-xs text-[#6B7280]">
           Contact your admin if you don&apos;t have access.
         </p>

@@ -13,8 +13,6 @@ import { projects, timesheets, invoices } from "@/data/mockData";
 import { fmtValue, fmtINR } from "@/lib/format";
 import { fmtDate } from "@/lib/dates";
 
-// ── constants ─────────────────────────────────────────────────────────────────
-
 const STATUS_BADGE = {
   Planning:  "muted",
   Active:    "teal",
@@ -28,8 +26,6 @@ const MILESTONE_STATUS = {
   "Not started":{ icon: Circle,       color: "text-[#6B7280]",  label: "Not started" },
   Overdue:      { icon: AlertCircle,  color: "text-[#B3413A]",  label: "Overdue"     },
 };
-
-// ── sub-components ────────────────────────────────────────────────────────────
 
 function StatTile({ icon: Icon, label, value, mono = false }) {
   return (
@@ -76,8 +72,6 @@ function MemberPill({ name }) {
     </span>
   );
 }
-
-// ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function ProjectDetailPage({ params }) {
   const { id } = use(params);
@@ -140,7 +134,6 @@ export default function ProjectDetailPage({ params }) {
         action={<Badge variant={STATUS_BADGE[project.status]}>{project.status}</Badge>}
       />
 
-      {/* Stat tiles */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
         <StatTile icon={CalendarDays} label="Budget"     value={fmtValue(project.budget)} mono />
         <StatTile icon={CalendarDays} label="Progress"   value={`${project.progress}%`} />
@@ -148,14 +141,12 @@ export default function ProjectDetailPage({ params }) {
         <StatTile icon={CalendarDays} label="End date"   value={fmtDate(project.endDate)} />
       </div>
 
-      {/* Progress bar */}
       <div className="bg-white border border-[#E3E5EA] rounded-lg px-5 py-4 mb-5">
         <p className="text-xs text-[#6B7280] mb-2">Overall progress</p>
         <ProgressBar value={project.progress} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        {/* Team card */}
         <div className="lg:col-span-1 flex flex-col gap-5">
           <div className="bg-white border border-[#E3E5EA] rounded-lg px-5 py-4">
             <h2 className="text-sm font-semibold text-[#171A21] mb-4 flex items-center gap-2">
@@ -200,7 +191,6 @@ export default function ProjectDetailPage({ params }) {
           )}
         </div>
 
-        {/* Milestones card */}
         <div className="lg:col-span-2">
           <div className="bg-white border border-[#E3E5EA] rounded-lg px-5 py-4">
             <h2 className="text-sm font-semibold text-[#171A21] mb-4">Milestones</h2>

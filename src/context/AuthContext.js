@@ -6,7 +6,6 @@ const AuthContext = createContext(null);
 
 const SESSION_KEY = "crm_session";
 
-/** Derives display-friendly fields from a stored user record. */
 function deriveUser(u) {
   const parts = u.name.trim().split(" ");
   return {
@@ -24,14 +23,14 @@ export function AuthProvider({ children }) {
   const [user, setUser]   = useState(null);
   const [ready, setReady] = useState(false);
 
-  // Restore session on mount before any render-gated redirect fires
+  // Restore the saved session before protected pages decide where to route.
   useEffect(() => {
     try {
       const raw = sessionStorage.getItem(SESSION_KEY);
       // eslint-disable-next-line react-hooks/set-state-in-effect -- sessionStorage is only available in the browser.
       if (raw) setUser(JSON.parse(raw));
     } catch {
-      // ignore corrupt storage
+      // A corrupt saved session should not block sign-in.
     }
     setReady(true);
   }, []);

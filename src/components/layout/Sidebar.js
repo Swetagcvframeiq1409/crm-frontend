@@ -52,7 +52,6 @@ export default function Sidebar({ collapsed, onToggle }) {
       style={{ width: collapsed ? 56 : 224 }}
       className="fixed top-0 left-0 h-full bg-[#12172B] flex flex-col z-30 transition-[width] duration-200 ease-in-out overflow-hidden"
     >
-      {/* Logo + collapse toggle */}
       <div className="flex items-center justify-between px-3.5 py-4 border-b border-white/8 shrink-0">
         {!collapsed && (
           <span className="text-white font-semibold text-base tracking-tight whitespace-nowrap">
@@ -71,7 +70,6 @@ export default function Sidebar({ collapsed, onToggle }) {
         </button>
       </div>
 
-      {/* Nav groups */}
       <nav className="flex-1 px-2 py-3 flex flex-col gap-4 overflow-y-auto">
         {GROUPS.map((group) => (
           <div key={group.label}>
@@ -111,7 +109,6 @@ export default function Sidebar({ collapsed, onToggle }) {
         ))}
       </nav>
 
-      {/* User footer */}
       <div className="px-2.5 py-3 border-t border-white/8 shrink-0">
         <div className="flex items-center gap-2.5">
           <div className="w-7 h-7 rounded-full bg-[#0E7C66]/20 flex items-center justify-center shrink-0">

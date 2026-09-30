@@ -14,8 +14,6 @@ import { proposals, clients } from "@/data/mockData";
 import { fmtValue, fmtINR } from "@/lib/format";
 import { fmtDate } from "@/lib/dates";
 
-// ── constants ─────────────────────────────────────────────────────────────────
-
 const STATUS_VARIANTS = {
   Draft:       "muted",
   Sent:        "bluegrey",
@@ -30,8 +28,6 @@ function isExpired(iso) {
   return new Date(iso) < new Date();
 }
 
-// ── Proposal detail panel ─────────────────────────────────────────────────────
-
 function ProposalDetail({ proposal: p }) {
   if (!p) return null;
 
@@ -42,7 +38,6 @@ function ProposalDetail({ proposal: p }) {
 
   return (
     <div className="flex flex-col gap-5">
-      {/* Header */}
       <div>
         <div className="flex items-center gap-2 mb-1">
           <Badge variant={STATUS_VARIANTS[p.status]}>{p.status}</Badge>
@@ -68,7 +63,6 @@ function ProposalDetail({ proposal: p }) {
 
       <hr className="border-[#E3E5EA]" />
 
-      {/* Line items */}
       <div>
         <p className="text-xs font-medium text-[#6B7280] mb-2">Line Items</p>
         <div className="flex flex-col gap-0">
@@ -84,7 +78,6 @@ function ProposalDetail({ proposal: p }) {
         </div>
       </div>
 
-      {/* Totals */}
       <div className="bg-[#F5F6F8] rounded-lg px-4 py-3 flex flex-col gap-1.5">
         {[
           { label: "Subtotal",  value: fmtINR(subtotal),      muted: true  },
@@ -104,7 +97,6 @@ function ProposalDetail({ proposal: p }) {
 
       <hr className="border-[#E3E5EA]" />
 
-      {/* Version history */}
       <div>
         <p className="text-xs font-medium text-[#6B7280] mb-3">Version History</p>
         <div className="relative">
@@ -127,8 +119,6 @@ function ProposalDetail({ proposal: p }) {
     </div>
   );
 }
-
-// ── New proposal form ─────────────────────────────────────────────────────────
 
 const EMPTY_LINE = { desc: "", amount: "" };
 const EMPTY_FORM = {
@@ -177,7 +167,6 @@ function NewProposalForm({ onCreate }) {
         />
       </div>
 
-      {/* Line items */}
       <div>
         <label className={labelCls}>Line Items</label>
         <div className="flex flex-col gap-2">
@@ -217,7 +206,6 @@ function NewProposalForm({ onCreate }) {
         </button>
       </div>
 
-      {/* Totals preview */}
       {subtotal > 0 && (
         <div className="bg-[#F5F6F8] rounded-lg px-4 py-3 flex flex-col gap-1.5">
           {[
@@ -262,8 +250,6 @@ function NewProposalForm({ onCreate }) {
     </form>
   );
 }
-
-// ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function ProposalsPage() {
   const [statusFilter, setStatus] = useState("All");

@@ -1,10 +1,6 @@
 "use client";
 
-/**
- * Timesheets page
- * State is kept in React memory only.
- * TODO: replace setSheets() calls with API mutations when the backend is ready.
- */
+// Timesheet edits are local for now; replace setSheets() with API calls when the backend is ready.
 
 import { useState, useMemo, useCallback } from "react";
 import { ChevronLeft, ChevronRight, CheckCircle2, XCircle, ClipboardList } from "lucide-react";
@@ -17,23 +13,18 @@ import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import { timesheets as seedData, projects } from "@/data/mockData";
 
-// ── date helpers (one place, used everywhere) ─────────────────────────────────
-
 const DAYS   = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
-/** "2026-09-28" → Date (local midnight) */
 function parseISO(iso) {
   const [y, m, d] = iso.split("-").map(Number);
   return new Date(y, m - 1, d);
 }
 
-/** Date → "28 Sep 2026" */
 function fmt(date) {
   return `${date.getDate()} ${MONTHS[date.getMonth()]} ${date.getFullYear()}`;
 }
 
-/** "2026-09-28" → "28 Sep – 4 Oct 2026" */
 function weekLabel(iso) {
   const mon = parseISO(iso);
   const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
@@ -45,24 +36,19 @@ function weekLabel(iso) {
   return `${start} – ${fmt(sun)}`;
 }
 
-/** Add/subtract weeks from an ISO Monday string */
 function shiftWeek(iso, delta) {
   const d = parseISO(iso);
   d.setDate(d.getDate() + delta * 7);
   return d.toISOString().slice(0, 10);
 }
 
-/** Sum an hours[7] array */
 function rowTotal(hours) {
   return hours.reduce((s, h) => s + (parseFloat(h) || 0), 0);
 }
 
-/** Sum all entries in a timesheet */
 function sheetTotal(entries) {
   return entries.reduce((s, e) => s + rowTotal(e.hours), 0);
 }
-
-// ── status badge variant map ──────────────────────────────────────────────────
 
 const STATUS_VARIANT = {
   Draft:     "muted",
@@ -71,13 +57,9 @@ const STATUS_VARIANT = {
   Rejected:  "rose",
 };
 
-// ── active projects lookup ────────────────────────────────────────────────────
-
 const ACTIVE_PROJECTS = Object.fromEntries(
   projects.filter((p) => p.status === "Active").map((p) => [p.id, p])
 );
-
-// ── stat card (plain, no sparkline needed here) ───────────────────────────────
 
 function MiniStat({ label, value, sub }) {
   return (
@@ -89,24 +71,19 @@ function MiniStat({ label, value, sub }) {
   );
 }
 
-// ── My Timesheet tab ──────────────────────────────────────────────────────────
-
 function MyTimesheetTab({ sheets, onUpdate, userId, userName }) {
   const toast = useToast();
 
   // Current week ISO (Mon 28 Sep 2026 is the seed "today")
   const [weekISO, setWeekISO] = useState("2026-09-28");
 
-  // Find or synthesise a sheet for this user + week
   const existing = useMemo(
     () => sheets.find((s) => s.employeeId === userId && s.weekStart === weekISO),
     [sheets, userId, weekISO]
   );
 
-  // Derive editable entries from the sheet (or empty rows for active projects)
   const baseEntries = useMemo(() => {
     if (existing) return existing.entries.map((e) => ({ ...e, hours: [...e.hours] }));
-    // No sheet yet — show rows for every active project (hours all zero)
     return Object.keys(ACTIVE_PROJECTS).map((id) => ({
       projectId: id,
       hours: [0, 0, 0, 0, 0, 0, 0],
@@ -115,7 +92,6 @@ function MyTimesheetTab({ sheets, onUpdate, userId, userName }) {
 
   const [entries, setEntries] = useState(baseEntries);
 
-  // Re-sync entries when week changes
   const handleWeekChange = useCallback((newISO) => {
     setWeekISO(newISO);
     const s = sheets.find((sh) => sh.employeeId === userId && sh.weekStart === newISO);
@@ -132,7 +108,6 @@ function MyTimesheetTab({ sheets, onUpdate, userId, userName }) {
   const status   = rejectedByName?.status ?? existing?.status ?? "Draft";
   const readOnly = status === "Submitted" || status === "Approved";
 
-  // Column totals
   const colTotals = DAYS.map((_, di) =>
     entries.reduce((s, e) => s + (parseFloat(e.hours[di]) || 0), 0)
   );
@@ -169,7 +144,6 @@ function MyTimesheetTab({ sheets, onUpdate, userId, userName }) {
 
   return (
     <div className="flex flex-col gap-5">
-      {/* Week selector */}
       <div className="flex items-center gap-3">
         <button
           onClick={() => handleWeekChange(shiftWeek(weekISO, -1))}
@@ -191,7 +165,6 @@ function MyTimesheetTab({ sheets, onUpdate, userId, userName }) {
         <Badge variant={STATUS_VARIANT[status]}>{status}</Badge>
       </div>
 
-      {/* Grid */}
       <div className="bg-white border border-[#E3E5EA] rounded-lg overflow-x-auto">
         <table className="w-full text-sm border-collapse">
           <thead>
@@ -235,7 +208,6 @@ function MyTimesheetTab({ sheets, onUpdate, userId, userName }) {
               );
             })}
 
-            {/* Column totals row */}
             <tr className="bg-[#F5F6F8] border-t border-[#E3E5EA]">
               <td className="px-4 py-2.5 text-xs font-medium text-[#6B7280]">Daily total</td>
               {colTotals.map((t, i) => (
@@ -251,7 +223,6 @@ function MyTimesheetTab({ sheets, onUpdate, userId, userName }) {
         </table>
       </div>
 
-      {/* Target note + actions */}
       <div className="flex items-center justify-between">
         <p className="text-xs text-[#6B7280]">
           Target: <span className="font-medium text-[#171A21]">40 hours</span>
@@ -281,8 +252,6 @@ function MyTimesheetTab({ sheets, onUpdate, userId, userName }) {
     </div>
   );
 }
-
-// ── Approvals tab ─────────────────────────────────────────────────────────────
 
 function ApprovalsTab({ sheets, onApprove, onReject }) {
   const pending = sheets.filter((s) => s.status === "Submitted");
@@ -394,8 +363,6 @@ function ApprovalsTab({ sheets, onApprove, onReject }) {
   );
 }
 
-// ── Page ──────────────────────────────────────────────────────────────────────
-
 const CAN_APPROVE = ["Sales Manager", "admin"];
 const CURRENT_WEEK = "2026-09-28";
 
@@ -404,11 +371,8 @@ export default function TimesheetsPage() {
   const toast     = useToast();
   const canApprove = CAN_APPROVE.includes(user?.role);
 
-  // All timesheet state lives here — backend will own this later
   const [sheets, setSheets] = useState(seedData);
   const [tab, setTab]       = useState("mine");
-
-  // ── stat calculations ──────────────────────────────────────────────────────
 
   const myCurrentSheet = sheets.find(
     (s) => s.employeeId === user?.id && s.weekStart === CURRENT_WEEK
@@ -417,8 +381,7 @@ export default function TimesheetsPage() {
 
   const pendingCount = sheets.filter((s) => s.status === "Submitted").length;
 
-  // Average over last 4 approved weeks for this user, excluding the current week
-  // so approving today's sheet doesn't skew the stat.
+  // Exclude the current week so approving it doesn't skew the average.
   const myApproved = sheets
     .filter(
       (s) =>
@@ -432,8 +395,6 @@ export default function TimesheetsPage() {
     myApproved.length > 0
       ? (myApproved.reduce((s, sh) => s + sheetTotal(sh.entries), 0) / myApproved.length).toFixed(1)
       : "—";
-
-  // ── sheet mutation helpers ─────────────────────────────────────────────────
 
   function handleUpdate({ userId, weekISO, entries, status, submittedDate }) {
     setSheets((prev) => {
@@ -474,8 +435,6 @@ export default function TimesheetsPage() {
     toast({ message: `Rejected timesheet for ${s?.employeeName ?? id}.`, variant: "error" });
   }
 
-  // ── render ─────────────────────────────────────────────────────────────────
-
   const tabs = [
     { id: "mine",      label: "My Timesheet" },
     ...(canApprove ? [{ id: "approvals", label: `Approvals${pendingCount > 0 ? ` (${pendingCount})` : ""}` }] : []),
@@ -488,7 +447,6 @@ export default function TimesheetsPage() {
         breadcrumbs={[{ label: "Timesheets" }]}
       />
 
-      {/* Stat row */}
       <div className={`grid ${canApprove ? "grid-cols-1 sm:grid-cols-3" : "grid-cols-1 sm:grid-cols-[minmax(0,16rem)]"} gap-4 mb-6`}>
         <MiniStat
           label="Hours logged this week"
@@ -511,7 +469,6 @@ export default function TimesheetsPage() {
         )}
       </div>
 
-      {/* Tab bar */}
       <div className="flex items-center gap-0 border-b border-[#E3E5EA] mb-5">
         {tabs.map((t) => (
           <button
@@ -528,7 +485,6 @@ export default function TimesheetsPage() {
         ))}
       </div>
 
-      {/* Tab content */}
       {tab === "mine" && (
         <MyTimesheetTab
           sheets={sheets}

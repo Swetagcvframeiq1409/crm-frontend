@@ -5,7 +5,6 @@ function Bone({ className = "" }) {
 export function TableSkeleton({ rows = 6, cols = 5 }) {
   return (
     <div className="bg-white border border-[#E3E5EA] rounded-lg overflow-hidden">
-      {/* fake thead */}
       <div className="bg-[#F5F6F8] border-b border-[#E3E5EA] px-4 py-3 flex gap-6">
         {Array.from({ length: cols }).map((_, i) => (
           <Bone key={i} className="h-3 flex-1" />

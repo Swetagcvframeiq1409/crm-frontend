@@ -13,26 +13,19 @@ import { TableSkeleton } from "@/components/ui/Skeleton";
 import { tickets as allTickets } from "@/data/mockData";
 import { fmtDate } from "@/lib/dates";
 
-// ── SLA helpers ───────────────────────────────────────────────────────────────
-
-/** Returns true when the SLA deadline has passed and the ticket is still active. */
 function isSlaBreached(ticket) {
   if (ticket.status === "Resolved" || ticket.status === "Closed") return false;
   const deadline = new Date(ticket.createdDate).getTime() + ticket.slaHours * 3_600_000;
   return Date.now() > deadline;
 }
 
-/** Deadline as a Date object. */
 function slaDeadline(ticket) {
   return new Date(new Date(ticket.createdDate).getTime() + ticket.slaHours * 3_600_000);
 }
 
-/** Hours between two ISO/Date values, rounded to 1 dp. */
 function hoursBetween(a, b) {
   return Math.abs(new Date(b) - new Date(a)) / 3_600_000;
 }
-
-// ── Badge maps ────────────────────────────────────────────────────────────────
 
 const PRIORITY_VARIANT = {
   Low:    "muted",
@@ -48,8 +41,6 @@ const STATUS_VARIANT = {
   "Resolved":          "teal",
   "Closed":            "muted",
 };
-
-// ── Stat tile (no sparkline — same pattern as client detail) ──────────────────
 
 function StatTile({ icon: Icon, label, value, iconColor = "#6B7280", valueColor }) {
   return (
@@ -70,8 +61,6 @@ function StatTile({ icon: Icon, label, value, iconColor = "#6B7280", valueColor 
   );
 }
 
-// ── SLA indicator dot ─────────────────────────────────────────────────────────
-
 function SlaIndicator({ ticket }) {
   const done = ticket.status === "Resolved" || ticket.status === "Closed";
   if (done) {
@@ -83,8 +72,6 @@ function SlaIndicator({ ticket }) {
   return <Circle size={14} strokeWidth={2} className="text-[#0E7C66]" title="Within SLA" />;
 }
 
-// ── Ticket detail SlideOver ───────────────────────────────────────────────────
-
 function TicketDetail({ ticket, onClose }) {
   if (!ticket) return null;
 
@@ -94,7 +81,6 @@ function TicketDetail({ ticket, onClose }) {
 
   return (
     <SlideOver open={!!ticket} onClose={onClose} title={ticket.id} width="w-[520px]">
-      {/* Subject + badges */}
       <div className="mb-5">
         <h3 className="text-base font-semibold text-[#171A21] leading-snug mb-2">
           {ticket.subject}
@@ -107,7 +93,6 @@ function TicketDetail({ ticket, onClose }) {
         </div>
       </div>
 
-      {/* Meta grid */}
       <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm mb-5 pb-5 border-b border-[#E3E5EA]">
         <div>
           <p className="text-xs text-[#6B7280] mb-0.5">Client</p>
@@ -134,7 +119,6 @@ function TicketDetail({ ticket, onClose }) {
         </div>
       </div>
 
-      {/* SLA block */}
       <div
         className={`rounded-lg px-4 py-3 mb-5 border ${
           done
@@ -176,7 +160,6 @@ function TicketDetail({ ticket, onClose }) {
         )}
       </div>
 
-      {/* Activity timeline */}
       <div>
         <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mb-3">
           Activity
@@ -209,8 +192,6 @@ function TicketDetail({ ticket, onClose }) {
   );
 }
 
-// ── Page ──────────────────────────────────────────────────────────────────────
-
 const ALL_STATUSES  = ["All", "Open", "In Progress", "Waiting on Client", "Resolved", "Closed"];
 const ALL_PRIORITIES = ["All", "Urgent", "High", "Medium", "Low"];
 
@@ -220,11 +201,9 @@ function TicketsContent() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter]   = useState("All");
   const [priorityFilter, setPriorityFilter] = useState("All");
-  // Initialise client filter from ?client= query param (linked from client detail page)
+  // Client detail links open this list with that client already selected.
   const [clientFilter, setClientFilter]   = useState(() => searchParams.get("client") ?? "");
   const [selected, setSelected] = useState(null);
-
-  // ── derived stats (calculated, not hardcoded) ──────────────────────────────
 
   const openCount = useMemo(
     () => allTickets.filter((t) => t.status === "Open" || t.status === "In Progress").length,
@@ -236,7 +215,6 @@ function TicketsContent() {
     []
   );
 
-  // Constant — computed once from static seed data, no deps needed
   const resolved = allTickets.filter(
     (t) => (t.status === "Resolved" || t.status === "Closed") && t.resolvedDate
   );
@@ -247,8 +225,6 @@ function TicketsContent() {
           resolved.length
         ).toFixed(1)
       : null;
-
-  // ── filtered list ──────────────────────────────────────────────────────────
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
@@ -263,8 +239,6 @@ function TicketsContent() {
     });
   }, [search, statusFilter, priorityFilter, clientFilter]);
 
-  // ── render ─────────────────────────────────────────────────────────────────
-
   return (
     <AppShell>
       <Header
@@ -272,7 +246,6 @@ function TicketsContent() {
         breadcrumbs={[{ label: "Tickets" }]}
       />
 
-      {/* Stat row */}
       <div className="grid grid-cols-3 gap-4 mb-6">
         <StatTile
           icon={Headphones}
@@ -295,7 +268,6 @@ function TicketsContent() {
         />
       </div>
 
-      {/* Filter row */}
       <div className="flex flex-wrap items-center gap-3 mb-4">
         <input
           type="text"
@@ -335,7 +307,6 @@ function TicketsContent() {
         </span>
       </div>
 
-      {/* Table */}
       {loading ? (
         <TableSkeleton rows={6} cols={7} />
       ) : filtered.length === 0 ? (
@@ -368,7 +339,6 @@ function TicketsContent() {
                     i < filtered.length - 1 ? "border-b border-[#E3E5EA]" : ""
                   }`}
                 >
-                  {/* ID + subject */}
                   <td className="px-4 py-3">
                     <p className="font-mono-data text-xs text-[#6B7280]">{ticket.id}</p>
                     <p className="text-sm font-medium text-[#171A21] mt-0.5 max-w-[220px] truncate">
@@ -386,7 +356,6 @@ function TicketsContent() {
                       {ticket.priority === "Urgent" ? "🔴 " : ""}{ticket.priority}
                     </Badge>
                   </td>
-                  {/* Assigned to: avatar + name */}
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1.5">
                       <span className="w-6 h-6 rounded-full bg-[#0E7C66]/12 flex items-center justify-center text-[9px] font-semibold text-[#0E7C66] shrink-0">
@@ -413,7 +382,6 @@ function TicketsContent() {
         </div>
       )}
 
-      {/* Detail slide-over */}
       <TicketDetail ticket={selected} onClose={() => setSelected(null)} />
     </AppShell>
   );

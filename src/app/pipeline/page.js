@@ -20,8 +20,6 @@ import { deals as initialDeals } from "@/data/mockData";
 import { fmtValue } from "@/lib/format";
 import { fmtDate, urgency } from "@/lib/dates";
 
-// ── constants ─────────────────────────────────────────────────────────────────
-
 const STAGES = ["Discovery", "Proposal", "Negotiation", "Won"];
 
 const STAGE_META = {
@@ -36,8 +34,6 @@ const URGENCY_BORDER = {
   amber: "border-l-[3px] border-l-[#B7791F]",
   null:  "border-l-[3px] border-l-transparent",
 };
-
-// ── DealCard (draggable) ──────────────────────────────────────────────────────
 
 function DealCard({ deal, onClick, isDragOverlay = false }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: deal.id });
@@ -99,8 +95,6 @@ function DealCard({ deal, onClick, isDragOverlay = false }) {
   );
 }
 
-// ── Column (droppable) ────────────────────────────────────────────────────────
-
 function Column({ stage, deals, onCardClick }) {
   const { setNodeRef, isOver } = useDroppable({ id: stage });
   const meta = STAGE_META[stage];
@@ -108,7 +102,6 @@ function Column({ stage, deals, onCardClick }) {
 
   return (
     <div className="flex flex-col min-w-0 flex-1">
-      {/* Column header */}
       <div className={`${meta.tint} rounded-lg px-3.5 py-2.5 mb-3 flex items-center justify-between`}>
         <div className="flex items-center gap-2">
           <span className={`text-sm font-semibold ${meta.text}`}>{stage}</span>
@@ -119,7 +112,6 @@ function Column({ stage, deals, onCardClick }) {
         <span className="font-mono-data text-xs text-[#6B7280]">{fmtValue(total)}</span>
       </div>
 
-      {/* Drop zone */}
       <div
         ref={setNodeRef}
         className={`flex flex-col gap-2.5 flex-1 min-h-30 rounded-lg p-1 transition-colors
@@ -133,8 +125,6 @@ function Column({ stage, deals, onCardClick }) {
     </div>
   );
 }
-
-// ── List view ─────────────────────────────────────────────────────────────────
 
 function ListView({ deals, onRowClick }) {
   const STAGE_BADGE = { Discovery: "muted", Proposal: "amber", Negotiation: "teal", Won: "muted" };
@@ -191,8 +181,6 @@ function ListView({ deals, onRowClick }) {
   );
 }
 
-// ── Deal detail slide-over content ────────────────────────────────────────────
-
 function DealDetail({ deal }) {
   if (!deal) return null;
   const u = urgency(deal.closeDate);
@@ -236,8 +224,6 @@ function DealDetail({ deal }) {
   );
 }
 
-// ── Page ──────────────────────────────────────────────────────────────────────
-
 export default function PipelinePage() {
   const [deals, setDeals]           = useState(initialDeals);
   const [view, setView]             = useState("board");   // "board" | "list"
@@ -249,7 +235,6 @@ export default function PipelinePage() {
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } })
   );
 
-  // Group deals by stage
   const byStage = useMemo(() => {
     const map = Object.fromEntries(STAGES.map((s) => [s, []]));
     deals.forEach((d) => { if (map[d.stage]) map[d.stage].push(d); });
@@ -319,7 +304,6 @@ export default function PipelinePage() {
             ))}
           </div>
 
-          {/* Drag overlay — the floating card while dragging */}
           <DragOverlay dropAnimation={{ duration: 180, easing: "ease" }}>
             {activeDeal && (
               <DealCard deal={activeDeal} onClick={() => {}} isDragOverlay />

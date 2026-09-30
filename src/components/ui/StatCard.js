@@ -4,10 +4,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { LineChart, Line, ResponsiveContainer } from "recharts";
 
-/** Parses a display value string into a numeric part + prefix/suffix for count-up. */
 function parseValue(raw) {
-  // e.g. "₹2,84,50,000" → prefix "₹", num 28450000, suffix ""
-  // e.g. "34" → prefix "", num 34, suffix ""
   const stripped = raw.replace(/,/g, "");
   const match = stripped.match(/^([^\d]*)(\d+(?:\.\d+)?)(.*)$/);
   if (!match) return null;
@@ -15,13 +12,12 @@ function parseValue(raw) {
 }
 
 function formatNum(num, originalRaw) {
-  // Preserve the original locale formatting style
   const stripped = originalRaw.replace(/,/g, "");
   const match = stripped.match(/^([^\d]*)(\d+(?:\.\d+)?)(.*)$/);
   if (!match) return originalRaw;
   const isFloat = match[2].includes(".");
   if (isFloat) return num.toFixed(2);
-  // Re-apply Indian locale grouping if original had commas
+  // Keep Indian digit grouping for values that were originally grouped.
   if (originalRaw.includes(",")) {
     return Math.round(num).toLocaleString("en-IN");
   }

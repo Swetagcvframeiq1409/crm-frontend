@@ -1,5 +1,4 @@
-// TEMPORARY — mock user accounts for demo purposes.
-// Replace with real backend authentication before production.
+// Demo accounts; replace these with backend authentication before production.
 
 export const DEMO_USERS = [
   {

@@ -16,7 +16,7 @@ export const attentionClients = [
 ];
 
 // Deals
-// Sample data. Today is assumed to be late Sep 2026.
+// Demo dates are set around late September 2026.
 
 export const deals = [
   {
@@ -844,23 +844,10 @@ export const leads = [
   },
 ];
 
-// ---------------------------------------------------------------------------
-// Timesheets
-// "Today" = late Sep 2026. Week starts on Monday.
-// Only Active projects carry hours — Planning / On Hold / Completed are excluded.
-// Active projects: PRJ-102, PRJ-104, PRJ-107, PRJ-109, PRJ-110
-//
-// Team membership used here:
-//   Sweta Ghosh  → PRJ-102 (via "Rohan Sethi" slot replaced), PRJ-107, PRJ-110
-//   Rahul Kumar  → PRJ-104, PRJ-109 (added), PRJ-102 (added)
-//   Priya Sharma → PRJ-107, PRJ-110, PRJ-102 (added)
-//
-// NOTE: team arrays in projects are display-only strings; timesheet entries
-// reference projectId directly. Backend will enforce membership.
-// ---------------------------------------------------------------------------
+// Timesheet weeks start Monday; only active projects carry hours.
+// Project team labels are display-only; entries link to projects by ID.
 
 export const timesheets = [
-  // ── Current week: 28 Sep – 4 Oct 2026 (Draft for demo users) ──────────────
   {
     id: "TS-001",
     employeeId: "U001",
@@ -899,7 +886,6 @@ export const timesheets = [
     ],
   },
 
-  // ── Week 21–27 Sep 2026 (Approved for demo users) ─────────────────────────
   {
     id: "TS-004",
     employeeId: "U001",
@@ -938,7 +924,6 @@ export const timesheets = [
     ],
   },
 
-  // ── Week 14–20 Sep 2026 (Approved) ────────────────────────────────────────
   {
     id: "TS-007",
     employeeId: "U001",
@@ -977,7 +962,6 @@ export const timesheets = [
     ],
   },
 
-  // ── Week 7–13 Sep 2026 (Approved) ─────────────────────────────────────────
   {
     id: "TS-010",
     employeeId: "U001",
@@ -1017,7 +1001,6 @@ export const timesheets = [
     ],
   },
 
-  // ── Week 31 Aug – 6 Sep 2026 (Approved) ────────────────────────────────────
   {
     id: "TS-015",
     employeeId: "U001",
@@ -1068,7 +1051,6 @@ export const timesheets = [
     ],
   },
 
-  // ── Week 24–30 Aug 2026 (Approved) ────────────────────────────────────────
   {
     id: "TS-019",
     employeeId: "U001",
@@ -1119,7 +1101,6 @@ export const timesheets = [
     ],
   },
 
-  // ── Week 17–23 Aug 2026 (Approved) ────────────────────────────────────────
   {
     id: "TS-023",
     employeeId: "U001",
@@ -1170,7 +1151,6 @@ export const timesheets = [
     ],
   },
 
-  // ── Amit Patel current week Draft (28 Sep – 4 Oct 2026) ───────────────────
   {
     id: "TS-027",
     employeeId: "U004",
@@ -1184,7 +1164,6 @@ export const timesheets = [
     ],
   },
 
-  // ── Submitted timesheets from other team members (waiting for approval) ────
   {
     id: "TS-013",
     employeeId: "EXT-001",
@@ -1429,15 +1408,8 @@ export const invoices = [
   },
 ];
 
-// ---------------------------------------------------------------------------
 // Support Tickets
-// "Today" = late Sep 2026.
-// slaHours: Urgent 4, High 8, Medium 24, Low 48
-// SLA breach = createdDate + slaHours already passed AND status is Open or
-// In Progress. Tickets TCK-003, TCK-006, TCK-009 are intentional breaches.
-// resolvedDate is set only for Resolved / Closed tickets (used for avg
-// resolution time calculation).
-// ---------------------------------------------------------------------------
+// Demo dates are set around late September 2026; SLA breaches are intentional.
 
 export const tickets = [
   {

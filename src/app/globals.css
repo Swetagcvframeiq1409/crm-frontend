@@ -25,7 +25,6 @@ body {
   font-family: "IBM Plex Mono", "Courier New", monospace;
 }
 
-/* Focus ring — applied via focus-visible on interactive elements */
 :focus-visible {
   outline: 2px solid #0E7C66;
   outline-offset: 2px;

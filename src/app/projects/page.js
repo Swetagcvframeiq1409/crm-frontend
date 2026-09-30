@@ -12,8 +12,6 @@ import { projects } from "@/data/mockData";
 import { fmtValue } from "@/lib/format";
 import { fmtDate, daysUntil } from "@/lib/dates";
 
-// ── constants ─────────────────────────────────────────────────────────────────
-
 const STATUSES = ["All", "Planning", "Active", "On Hold", "Completed"];
 
 const STATUS_BADGE = {
@@ -22,8 +20,6 @@ const STATUS_BADGE = {
   "On Hold": "amber",
   Completed: "bluegrey",
 };
-
-// ── helpers ───────────────────────────────────────────────────────────────────
 
 function ProgressBar({ value }) {
   const pct = Math.min(100, Math.max(0, value));
@@ -51,8 +47,6 @@ function OwnerAvatar({ initials, name }) {
   );
 }
 
-// ── Page ──────────────────────────────────────────────────────────────────────
-
 export default function ProjectsPage() {
   const router = useRouter();
   const [search, setSearch]         = useState("");
@@ -75,7 +69,7 @@ export default function ProjectsPage() {
     });
   }, [search, statusFilter]);
 
-  // Summary stats — calculated from full dataset, not filtered view
+  // These totals describe all projects, not just the filtered table.
   const { activeCount, onHoldCount, endingSoon } = useMemo(() => ({
     activeCount:  projects.filter((p) => p.status === "Active").length,
     onHoldCount:  projects.filter((p) => p.status === "On Hold").length,
@@ -91,7 +85,6 @@ export default function ProjectsPage() {
     <AppShell>
       <Header title="Projects" />
 
-      {/* Summary row */}
       <div className="flex items-center gap-5 mb-5">
         {[
           { label: "Active",          value: activeCount  },
@@ -105,7 +98,6 @@ export default function ProjectsPage() {
         ))}
       </div>
 
-      {/* Filter row */}
       <div className="flex items-center gap-3 mb-4">
         <div className="relative">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7280]" />
@@ -129,7 +121,6 @@ export default function ProjectsPage() {
         </span>
       </div>
 
-      {/* Table */}
       {loading ? (
         <TableSkeleton rows={8} cols={7} />
       ) : filtered.length === 0 ? (

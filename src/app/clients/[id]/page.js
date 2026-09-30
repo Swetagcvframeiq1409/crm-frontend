@@ -18,8 +18,6 @@ const TIMELINE_ICON = {
   Email:   { icon: AtSign,    color: "#6B7280" },
 };
 
-// ── Stat tile ─────────────────────────────────────────────────────────────────
-
 function StatTile({ icon: Icon, label, value, mono = false }) {
   return (
     <div className="bg-white border border-[#E3E5EA] rounded-lg px-4 py-3.5 flex items-center gap-3">
@@ -33,8 +31,6 @@ function StatTile({ icon: Icon, label, value, mono = false }) {
     </div>
   );
 }
-
-// ── Page (server component — no "use client" needed) ─────────────────────────
 
 export default async function ClientDetailPage({ params }) {
   const { id } = await params;
@@ -73,7 +69,6 @@ export default async function ClientDetailPage({ params }) {
         breadcrumbs={[{ label: "Clients", href: "/clients" }, { label: client.name }]}
       />
 
-      {/* Quick stats row */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-7">
         <StatTile icon={Folder}      label="Active Projects"  value={`${client.activeProjects} project${client.activeProjects !== 1 ? "s" : ""}`} />
         <StatTile icon={RefreshCw}   label="Contract Value"   value={fmtValue(client.contractValue)} mono />
@@ -85,7 +80,6 @@ export default async function ClientDetailPage({ params }) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        {/* Left col: contacts */}
         <div className="lg:col-span-1 flex flex-col gap-5">
           <div className="bg-white border border-[#E3E5EA] rounded-lg px-5 py-4">
             <h2 className="text-sm font-semibold text-[#171A21] mb-4">Primary Contact</h2>
@@ -172,13 +166,11 @@ export default async function ClientDetailPage({ params }) {
           </div>
         </div>
 
-        {/* Right col: timeline */}
         <div className="lg:col-span-2">
           <div className="bg-white border border-[#E3E5EA] rounded-lg px-5 py-4">
             <h2 className="text-sm font-semibold text-[#171A21] mb-4">Communication Timeline</h2>
 
             <div className="relative">
-              {/* Vertical line */}
               <div className="absolute left-3.75 top-2 bottom-2 w-px bg-[#E3E5EA]" />
 
               <ul className="flex flex-col gap-0">
@@ -186,7 +178,6 @@ export default async function ClientDetailPage({ params }) {
                   const { icon: Icon, color } = TIMELINE_ICON[type] ?? TIMELINE_ICON.Email;
                   return (
                     <li key={id} className={`flex gap-4 ${i < client.timeline.length - 1 ? "pb-5" : ""}`}>
-                      {/* Icon node on the line */}
                       <span
                         className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 z-10 border-2 border-white"
                         style={{ backgroundColor: `${color}18` }}
@@ -194,7 +185,6 @@ export default async function ClientDetailPage({ params }) {
                         <Icon size={13} style={{ color }} strokeWidth={2} />
                       </span>
 
-                      {/* Content */}
                       <div className="flex-1 min-w-0 pt-1">
                         <div className="flex items-center gap-2 mb-0.5">
                           <span className="text-xs font-medium text-[#171A21]">{type}</span>

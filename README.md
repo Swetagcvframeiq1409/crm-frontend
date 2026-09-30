@@ -1,39 +1,17 @@
-## CVFrameIQ CRM - Frontend
+## CVFrameIQ CRM
 
-Internal CRM web app for IT services and consulting teams. Stage 1 frontend.
+I built this internal CRM frontend with Next.js, Tailwind CSS, and JavaScript. It includes sales, client, project, billing, timesheet, and support views; the app currently uses sample data rather than a backend.
 
-## What's built (Stage 1)
-- Login: sign in with a demo user to access the app.
-- Dashboard: pipeline value, active leads, deals by stage,
-  recent activity and clients that need attention.
-- Leads: list of leads with search and a status filter.
-  Add a lead or open one to see its details.
-- Pipeline: move deals through stages with drag and drop.
-- Clients: view the client list and open a detail page with
-  contact info and activity history.
-- Proposals: list of proposals with a status filter.
-  Open one to see line items, totals and versions.
-- Settings: placeholder account page for profile and preferences.
+## Run locally
 
-## Tech used
-- Next.js (App Router, JavaScript)
-- Tailwind CSS
-- framer-motion
-- recharts
-- dnd-kit
-- lucide-react
-
-## How to run it
-Requirements: Node.js 18.18 or newer.
+Use Node.js 18.18 or newer.
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open http://localhost:3000
-
-Other commands:
+Open http://localhost:3000. I use these commands to check the app:
 
 ```bash
 npm run build
@@ -41,7 +19,8 @@ npm run lint
 ```
 
 ## Demo logins
-These are sample accounts for testing only.
+
+These sample accounts are defined in `src/data/users.js`:
 
 | Name | Email | Password | Role |
 | --- | --- | --- | --- |
@@ -51,6 +30,7 @@ These are sample accounts for testing only.
 | Amit Patel | admin@cvframeiq.com | Demo@123 | Admin |
 
 ## Project structure
+
 ```text
 src/
   app/        Route pages and app layout
@@ -58,8 +38,3 @@ src/
   context/    Auth and toast state
   data/       Mock data and demo users
 ```
-
-## Notes
-- All data is sample data in src/data/mockData.js. There is no backend connected yet.
-- The login is a temporary demo login and will be replaced once the backend is ready.
-- Planned next: Stage 2 (projects, timesheets, billing, support tickets).
