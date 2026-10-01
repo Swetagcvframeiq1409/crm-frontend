@@ -12,6 +12,7 @@ import EmptyState from "@/components/ui/EmptyState";
 import { TableSkeleton } from "@/components/ui/Skeleton";
 import { tickets as allTickets } from "@/data/mockData";
 import { fmtDate } from "@/lib/dates";
+import { isOpenTicket } from "@/lib/tickets";
 
 function isSlaBreached(ticket) {
   if (ticket.status === "Resolved" || ticket.status === "Closed") return false;
@@ -206,7 +207,7 @@ function TicketsContent() {
   const [selected, setSelected] = useState(null);
 
   const openCount = useMemo(
-    () => allTickets.filter((t) => t.status === "Open" || t.status === "In Progress").length,
+    () => allTickets.filter(isOpenTicket).length,
     []
   );
 

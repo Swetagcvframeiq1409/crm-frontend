@@ -8,6 +8,7 @@ import { clients, contracts, tickets } from "@/data/mockData";
 import { fmtValue } from "@/lib/format";
 import { fmtDate, daysUntil } from "@/lib/dates";
 import { getClientHealth } from "@/lib/clientHealth";
+import { isOpenTicket } from "@/lib/tickets";
 
 const HEALTH_BADGE = { Healthy: "teal", "Needs Attention": "amber", "At Risk": "rose" };
 const CONTRACT_BADGE = { Active: "teal", Expiring: "amber", Renewed: "bluegrey", Expired: "rose" };
@@ -40,7 +41,7 @@ export default async function ClientDetailPage({ params }) {
   const contract = contracts.find((item) => item.clientId === client.id);
 
   const openTickets = tickets.filter(
-    (t) => t.client === client.name && (t.status === "Open" || t.status === "In Progress")
+    (ticket) => ticket.client === client.name && isOpenTicket(ticket)
   ).length;
   const renewalDays = contract ? daysUntil(contract.renewalDate) : null;
   const renewalColor = renewalDays < 0
